@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Symfony Blog{% endblock %}</title>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css" type="text/css" />
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+
+        <nav class="navbar has-shadow is-spaced" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="https://bulma.io">
+                </a>
+
+                <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+
+            {% set currentPath = path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')) %}
+            <div id="navbarBasicExample" class="navbar-menu">
+                <div class="navbar-start">
+                    <a href="/" class="navbar-item">
+                        <ion-icon class="ion-ionic {% if '/' in currentPath %}has-text-primary{% endif %}" name="home"></ion-icon>
+                        Home
+                    </a>
+
+                    <a href="/posts/search" class="navbar-item">
+                        <ion-icon class="ion-ionic {% if '/search' in currentPath %}has-text-primary{% endif %}" name="search"></ion-icon>
+                        Search
+                    </a>
+
+                    <a href="/authors" class="navbar-item">
+                        <ion-icon class="ion-ionic {% if '/authors' in currentPath %}has-text-primary{% endif %}" name="people"></ion-icon>
+                        Authors
+                    </a>
+                </div>
+
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <a href="/login" class="button is-primary">
+                                Log in
+                            </a>
+                            {% if app.user %}
+                                <a href="/logout" class="button is-secondary">
+                                    Log out
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <section class="section">
+            {% block body %}{% endblock %}
+        </section>
+
+        <footer class="footer">
+            <div class="content has-text-centered">
+                <p>
+                    This blog is for example purposes only.
+                </p>
+            </div>
+        </footer>
+
+        <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>

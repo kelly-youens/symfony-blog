@@ -1,0 +1,21 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+
+    <div class="section">
+        {% for post in posts %}
+
+            <article class="message container">
+                <div class="message-header">
+                    {{ post.title }}
+                </div>
+                <div class="message-body">
+                    <div>{{ post.body | raw }}</div>
+                    <div><a href="/posts/{{ post.id }}">Read More</a></div>
+                </div>
+            </article>
+
+        {% endfor %}
+    </div>
+
+{% endblock %}

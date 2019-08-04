@@ -1,0 +1,42 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+        <ul>
+            <li><a href="/posts">Posts</a></li>
+            <li>New Post</li>
+        </ul>
+    </nav>
+
+    <div class="container">
+
+        {{ form_start(form) }}
+            {{ form_errors(form) }}
+
+            <div class="field">
+                <label class="label">{{ form_label(form.title) }}</label>
+
+                <div class="control">
+                    {{ form_widget(form.title) }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label">{{ form_label(form.body) }}</label>
+
+                <div class="control">
+                    {{ form_widget(form.body) }}
+                </div>
+            </div>
+
+        <div class="field">
+            <div class="control">
+                <button class="button is-link">Submit</button>
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+
+{% endblock %}

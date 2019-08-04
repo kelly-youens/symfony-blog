@@ -1,0 +1,27 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+
+    <div class="container">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+                <li><a href="/posts">Posts</a></li>
+                <li class="is-active"><a href="/posts/{{ post.id }}" aria-current="page">{{ post.title }}</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="section">
+        <div class="content container">
+            <p class="title is-3">{{ post.title }}</p>
+            <p class="subtitle is-5">By {{ post.author.user.username }}</p>
+
+            <div class="is-medium">
+                {{ post.body | raw }}
+            </div>
+
+            <p class="right"><strong>Posted on {{ post.dateCreated | date("d/m/Y") }} at {{ post.dateCreated | date("H:i") }}</strong></p>
+        </div>
+    </div>
+
+{% endblock %}
