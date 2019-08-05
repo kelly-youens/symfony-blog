@@ -76,7 +76,8 @@ class PostController extends AbstractController
         $repository = $this->getDoctrine()->getRepository(Post::class);
         $post = $repository->find($id);
 
-        if ($post->getAuthor()->getUser()->getId() == $this->getUser()->getId()) {
+        // todo: explore Voters
+        if (!empty($post) && $post->getAuthor()->getUser()->getId() == $this->getUser()->getId()) {
             $entityManager = $this->getDoctrine()->getManager();
 
             $entityManager->remove($post);
