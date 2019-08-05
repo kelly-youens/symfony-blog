@@ -1,6 +1,7 @@
 <?php
 namespace App\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -10,8 +11,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface, \Serializable
 {
     /**
-     * @var int
-     *
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -19,49 +18,188 @@ class User implements UserInterface, \Serializable
     private $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string")
      */
     private $username;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string")
      */
     private $password;
 
     /**
-     * @var array
+     * @ORM\Column(type="date")
+     */
+    private $date_of_birth;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $location;
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $bio;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $join_date;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Post", mappedBy="user")
      *
+     * @var Collection $posts
+     */
+    private $posts;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $roles = [];
 
+    /**
+     * @return int
+     */
     public function getId(): int
     {
         return $this->id;
     }
 
+    /**
+     * @return string
+     */
     public function getUsername(): string
     {
         return $this->username;
     }
 
+    /**
+     * @param string $username
+     */
     public function setUsername(string $username): void
     {
         $this->username = $username;
     }
 
+    /**
+     * @return string
+     */
     public function getPassword(): string
     {
         return $this->password;
     }
 
+    /**
+     * @param string $password
+     */
     public function setPassword(string $password): void
     {
         $this->password = $password;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDateOfBirth() : \DateTime
+    {
+        return $this->date_of_birth;
+    }
+
+    /**
+     * @param \DateTime $date_of_birth
+     */
+    public function setDateOfBirth($date_of_birth): void
+    {
+        $this->date_of_birth = $date_of_birth;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocation() : string
+    {
+        return $this->location;
+    }
+
+    /**
+     * @param string $location
+     */
+    public function setLocation($location): void
+    {
+        $this->location = $location;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBio() : string
+    {
+        return $this->bio;
+    }
+
+    /**
+     * @param string $bio
+     */
+    public function setBio($bio): void
+    {
+        $this->bio = $bio;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getJoinDate() : \DateTime
+    {
+        return $this->join_date;
+    }
+
+    /**
+     * @param \DateTime $join_date
+     */
+    public function setJoinDate($join_date): void
+    {
+        $this->join_date = $join_date;
+    }
+
+    /**
+     * @return Collection|Post[]
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
+    }
+
+    /**
+     * @param Post $post
+     * @return User
+     */
+    public function addPost(Post $post): self
+    {
+        if (!$this->posts->contains($post)) {
+            $this->posts[] = $post;
+            $post->setUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Post $post
+     * @return User
+     */
+    public function removePost(Post $post): self
+    {
+        if ($this->posts->contains($post)) {
+            $this->posts->removeElement($post);
+            // set the owning side to null (unless already changed)
+            if ($post->getUser() === $this) {
+                $post->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -82,6 +220,9 @@ class User implements UserInterface, \Serializable
         return array_unique($roles);
     }
 
+    /**
+     * @param array $roles
+     */
     public function setRoles(array $roles): void
     {
         $this->roles = $roles;
@@ -94,9 +235,6 @@ class User implements UserInterface, \Serializable
      */
     public function getSalt(): ?string
     {
-        // See "Do you need to use a Salt?" at https://symfony.com/doc/current/cookbook/security/entity_provider.html
-        // we're using bcrypt in security.yml to encode the password, so
-        // the salt value is built-in and you don't have to generate one
         return null;
     }
 
@@ -107,8 +245,6 @@ class User implements UserInterface, \Serializable
      */
     public function eraseCredentials(): void
     {
-        // if you had a plainPassword property, you'd nullify it here
-        // $this->plainPassword = null;
     }
 
     /**
@@ -116,7 +252,6 @@ class User implements UserInterface, \Serializable
      */
     public function serialize(): string
     {
-        // add $this->salt too if you don't use Bcrypt or Argon2i
         return serialize([$this->id, $this->username, $this->password]);
     }
 
@@ -125,7 +260,6 @@ class User implements UserInterface, \Serializable
      */
     public function unserialize($serialized): void
     {
-        // add $this->salt too if you don't use Bcrypt or Argon2i
         [$this->id, $this->username, $this->password] = unserialize($serialized, ['allowed_classes' => false]);
     }
 }

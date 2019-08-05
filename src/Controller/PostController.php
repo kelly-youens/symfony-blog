@@ -8,7 +8,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Author;
+use App\Entity\User;
 use App\Entity\Post;
 use App\Form\PostType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,7 +49,7 @@ class PostController extends AbstractController
     public function getAllForAuthor()
     {
         $repository = $this->getDoctrine()->getRepository(Post::class);
-        $posts = $repository->findBy(['author' => $this->getUser()->getId()]);
+        $posts = $repository->findBy(['user' => $this->getUser()->getId()]);
 
         foreach ($posts as $post) {
             $body = $post->getBody();
@@ -76,8 +76,13 @@ class PostController extends AbstractController
         $repository = $this->getDoctrine()->getRepository(Post::class);
         $post = $repository->find($id);
 
-        // todo: explore Voters
-        if (!empty($post) && $post->getAuthor()->getUser()->getId() == $this->getUser()->getId()) {
+        try {
+            $this->denyAccessUnlessGranted('delete', $post);
+        } catch (\Exception $e) {
+            return new RedirectResponse($this->generateUrl('post_list'));
+        }
+
+        if (!empty($post)) {
             $entityManager = $this->getDoctrine()->getManager();
 
             $entityManager->remove($post);
@@ -127,16 +132,16 @@ class PostController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $repository = $this->getDoctrine()->getRepository(Author::class);
+            $repository = $this->getDoctrine()->getRepository(User::class);
 
-            $author = $repository->find($this->getUser()->getId());
+            $user = $repository->find($this->getUser()->getId());
 
             $post = new Post();
             $post->setTitle($data['title']);
             $post->setBody($data['body']);
             $post->setDateCreated(new \DateTime());
             $post->setDateUpdated(new \DateTime());
-            $post->setAuthor($author);
+            $post->setUser($user);
 
             $entityManager->persist($post);
             $entityManager->flush();

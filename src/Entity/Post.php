@@ -37,20 +37,30 @@ class Post
     private $date_updated;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Author", inversedBy="posts")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="posts")
      */
-    private $author;
+    private $user;
 
-    public function getId(): ?int
+    /**
+     * @return int
+     */
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    /**
+     * @return string
+     */
+    public function getTitle(): string
     {
         return $this->title;
     }
 
+    /**
+     * @param string $title
+     * @return Post
+     */
     public function setTitle(string $title): self
     {
         $this->title = $title;
@@ -58,11 +68,18 @@ class Post
         return $this;
     }
 
-    public function getBody(): ?string
+    /**
+     * @return string
+     */
+    public function getBody(): string
     {
         return $this->body;
     }
 
+    /**
+     * @param string $body
+     * @return Post
+     */
     public function setBody(string $body): self
     {
         $this->body = $body;
@@ -70,11 +87,18 @@ class Post
         return $this;
     }
 
-    public function getDateCreated(): ?\DateTime
+    /**
+     * @return \DateTime
+     */
+    public function getDateCreated(): \DateTime
     {
         return $this->date_created;
     }
 
+    /**
+     * @param \DateTime $date_created
+     * @return Post
+     */
     public function setDateCreated(\DateTime $date_created): self
     {
         $this->date_created = $date_created;
@@ -82,11 +106,18 @@ class Post
         return $this;
     }
 
-    public function getDateUpdated(): ?\DateTime
+    /**
+     * @return \DateTime
+     */
+    public function getDateUpdated(): \DateTime
     {
         return $this->date_updated;
     }
 
+    /**
+     * @param \DateTime $date_updated
+     * @return Post
+     */
     public function setDateUpdated(\DateTime $date_updated): self
     {
         $this->date_updated = $date_updated;
@@ -94,14 +125,21 @@ class Post
         return $this;
     }
 
-    public function getAuthor(): ?Author
+    /**
+     * @return User
+     */
+    public function getUser(): User
     {
-        return $this->author;
+        return $this->user;
     }
 
-    public function setAuthor(?Author $author): self
+    /**
+     * @param User $user
+     * @return Post
+     */
+    public function setUser(User $user): self
     {
-        $this->author = $author;
+        $this->user = $user;
 
         return $this;
     }

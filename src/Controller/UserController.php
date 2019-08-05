@@ -8,18 +8,18 @@
 
 namespace App\Controller;
 
-use App\Entity\Author;
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class AuthorController extends AbstractController
+class UserController extends AbstractController
 {
     /**
      * @Route("/authors", name="author_list")
      */
     public function index()
     {
-        $repository = $this->getDoctrine()->getRepository(Author::class);
+        $repository = $this->getDoctrine()->getRepository(User::class);
         $authors = $repository->findAll();
 
         return $this->render('author/list.html.twig', ['authors' => $authors]);
@@ -30,7 +30,7 @@ class AuthorController extends AbstractController
      */
     public function getOne($id)
     {
-        $repository = $this->getDoctrine()->getRepository(Author::class);
+        $repository = $this->getDoctrine()->getRepository(User::class);
         $author = $repository->find($id);
 
         return $this->render('author/single.html.twig', ['author' => $author]);

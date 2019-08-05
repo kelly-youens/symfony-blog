@@ -14,7 +14,7 @@
     <div class="section">
         <div class="content container">
             <p class="title is-3">{{ post.title }}</p>
-            <p class="subtitle is-5">By {{ post.author.user.username }}</p>
+            <p class="subtitle is-5">By {{ post.user.username }}</p>
 
             <div class="is-medium">
                 {{ post.body | raw }}
