@@ -14,13 +14,13 @@ use App\Form\PostType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PostController extends AbstractController
 {
     /**
      * @Route("/", name="home")
-     * @Route("/posts", name="post_list")
      */
     public function getAll()
     {
@@ -40,6 +40,50 @@ class PostController extends AbstractController
         return $this->render('post/list.html.twig', [
             'posts' => $posts,
         ]);
+    }
+
+    /**
+     * @Route("/posts", name="post_list")
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getAllForAuthor()
+    {
+        $repository = $this->getDoctrine()->getRepository(Post::class);
+        $posts = $repository->findBy(['author' => $this->getUser()->getId()]);
+
+        foreach ($posts as $post) {
+            $body = $post->getBody();
+
+            if (strlen($body) > 500) {
+                $body = substr($body, 0, 500) . '...';
+            }
+
+            $post->setBody($body);
+        }
+
+        return $this->render('post/author_list.html.twig', [
+            'posts' => $posts,
+        ]);
+    }
+
+    /**
+     * @Route("/posts/{id}/delete", name="delete_post", requirements={"id"="\d+"})
+     * @param $id
+     * @return RedirectResponse|Response
+     */
+    public function delete($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Post::class);
+        $post = $repository->find($id);
+
+        if ($post->getAuthor()->getUser()->getId() == $this->getUser()->getId()) {
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $entityManager->remove($post);
+            $entityManager->flush();
+        }
+
+        return new RedirectResponse($this->generateUrl('post_list'));
     }
 
     /**
@@ -84,13 +128,13 @@ class PostController extends AbstractController
 
             $repository = $this->getDoctrine()->getRepository(Author::class);
 
-            $author = $repository->find(1); // todo, get from session
+            $author = $repository->find($this->getUser()->getId());
 
             $post = new Post();
             $post->setTitle($data['title']);
             $post->setBody($data['body']);
-            $post->setDateCreated(new \DateTimeImmutable());
-            $post->setDateUpdated(new \DateTimeImmutable());
+            $post->setDateCreated(new \DateTime());
+            $post->setDateUpdated(new \DateTime());
             $post->setAuthor($author);
 
             $entityManager->persist($post);

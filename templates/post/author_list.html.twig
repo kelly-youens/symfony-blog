@@ -12,13 +12,13 @@
                     </div>
                     <div class="message-body">
                         <div>{{ post.body | raw }}</div>
-                        <div><a href="/posts/{{ post.id }}">Read More</a></div>
+                        <div><a href="/posts/{{ post.id }}/delete">Delete</a></div>
                     </div>
                 </article>
 
             {% endfor %}
         {% else %}
-            <p>There are no posts! <a href="/posts/new">Be the first to post something</a></p>
+            <p>You haven't posted yet! <a href="/posts/new">Post something</a></p>
         {% endif %}
     </div>
 
