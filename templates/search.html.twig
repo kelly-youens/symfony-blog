@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+
+    <div class="container">
+
+        {{ form_start(form) }}
+            {{ form_errors(form) }}
+
+            <div class="field">
+                <label class="label">{{ form_label(form.searchTerm) }}</label>
+
+                <div class="control">
+                    {{ form_widget(form.searchTerm) }}
+                </div>
+            </div>
+
+        <div class="field">
+            <div class="control">
+                <button class="button is-link">Search</button>
+            </div>
+        </div>
+
+        {{ form_end(form) }}
+
+    </div>
+
+{% endblock %}

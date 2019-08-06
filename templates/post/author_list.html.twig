@@ -12,9 +12,20 @@
                     </div>
                     <div class="message-body">
                         <div>{{ post.body | raw }}</div>
-                        <div><a href="/posts/{{ post.id }}/delete">Delete</a></div>
+                        <div class="level">
+                            <p>
+                                <a href="/posts/{{ post.id }}/edit" class="button is-warning">Edit</a>
+                                <a href="/posts/{{ post.id }}/delete"
+                                   class="button is-danger"
+                                   onclick="return confirm('Are you sure you want to delete this post?');">
+                                    Delete
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </article>
+
+                <div class="is-clearfix"></div>
 
             {% endfor %}
         {% else %}

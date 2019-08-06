@@ -11,6 +11,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Entity\Post;
 use App\Form\PostType;
+use App\Form\SearchType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,15 +28,7 @@ class PostController extends AbstractController
         $repository = $this->getDoctrine()->getRepository(Post::class);
         $posts = $repository->findAll();
 
-        foreach ($posts as $post) {
-            $body = $post->getBody();
-
-            if (strlen($body) > 500) {
-                $body = substr($body, 0, 500) . '...';
-            }
-
-            $post->setBody($body);
-        }
+        $posts = $this->getPostsWithExcerpts($posts);
 
         return $this->render('post/list.html.twig', [
             'posts' => $posts,
@@ -44,22 +37,15 @@ class PostController extends AbstractController
 
     /**
      * @Route("/posts", name="post_list")
-     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @return Response
      */
     public function getAllForAuthor()
     {
         $repository = $this->getDoctrine()->getRepository(Post::class);
         $posts = $repository->findBy(['user' => $this->getUser()->getId()]);
 
-        foreach ($posts as $post) {
-            $body = $post->getBody();
-
-            if (strlen($body) > 500) {
-                $body = substr($body, 0, 500) . '...';
-            }
-
-            $post->setBody($body);
-        }
+        $posts = $this->getPostsWithExcerpts($posts);
 
         return $this->render('post/author_list.html.twig', [
             'posts' => $posts,
@@ -67,33 +53,51 @@ class PostController extends AbstractController
     }
 
     /**
-     * @Route("/posts/{id}/delete", name="delete_post", requirements={"id"="\d+"})
-     * @param $id
-     * @return RedirectResponse|Response
+     * @Route("/search", name="search_display", methods={"GET"})
+     *
+     * @return Response
      */
-    public function delete($id)
+    public function searchDisplay()
     {
-        $repository = $this->getDoctrine()->getRepository(Post::class);
-        $post = $repository->find($id);
+        $form = $this->buildSearchForm();
 
-        try {
-            $this->denyAccessUnlessGranted('delete', $post);
-        } catch (\Exception $e) {
-            return new RedirectResponse($this->generateUrl('post_list'));
+        return $this->render('search.html.twig', ['form' => $form->createView()]);
+    }
+
+    /**
+     * @Route("/search", name="search", methods={"POST"})
+     *
+     * @return Response
+     */
+    public function search()
+    {
+        $form = $this->buildSearchForm();
+
+        $request = Request::createFromGlobals();
+
+        $form->handleRequest($request);
+
+        $posts = [];
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $repository = $this->getDoctrine()->getRepository(Post::class);
+            $posts = $repository->findBy(['title' => $data['searchTerm']]);
+
+            $posts = $this->getPostsWithExcerpts($posts);
         }
 
-        if (!empty($post)) {
-            $entityManager = $this->getDoctrine()->getManager();
-
-            $entityManager->remove($post);
-            $entityManager->flush();
-        }
-
-        return new RedirectResponse($this->generateUrl('post_list'));
+        return $this->render('post/list.html.twig', [
+            'posts' => $posts,
+        ]);
     }
 
     /**
      * @Route("/posts/{id}", name="view_post", requirements={"id"="\d+"})
+     *
+     * @param string $id
+     * @return Response
      */
     public function getOne($id)
     {
@@ -110,7 +114,67 @@ class PostController extends AbstractController
     {
         $form = $this->buildPostForm();
 
-        return $this->render('post/new.html.twig', ['form' => $form->createView()]);
+        return $this->render('post/new_edit.html.twig', ['form' => $form->createView()]);
+    }
+
+    /**
+     * @Route("/posts/{id}/edit", name="edit_post", methods={"GET"}, requirements={"id"="\d+"})
+     *
+     * @param string $id
+     * @return Response
+     */
+    public function edit($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Post::class);
+        $post = $repository->find($id);
+
+        try {
+            $this->denyAccessUnlessGranted('edit', $post);
+        } catch (\Exception $e) {
+            return new RedirectResponse($this->generateUrl('post_list'));
+        }
+
+        $form = $this->buildPostForm($post);
+
+        return $this->render('post/new_edit.html.twig', ['form' => $form->createView()]);
+    }
+
+    /**
+     * @Route("/posts/{id}/edit", name="save_edited_post", methods={"POST"}, requirements={"id"="\d+"})
+     *
+     * @param string $id
+     * @return Response
+     */
+    public function saveEdited($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Post::class);
+        $post = $repository->find($id);
+
+        try {
+            $this->denyAccessUnlessGranted('edit', $post);
+        } catch (\Exception $e) {
+            return new RedirectResponse($this->generateUrl('post_list'));
+        }
+
+        $form = $this->buildPostForm($post);
+
+        $request = Request::createFromGlobals();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $post->setTitle($data->getTitle());
+            $post->setBody($data->getBody());
+
+            $entityManager->persist($post);
+            $entityManager->flush();
+        }
+
+        return new RedirectResponse($this->generateUrl('post_list'));
     }
 
     /**
@@ -119,7 +183,7 @@ class PostController extends AbstractController
      * @throws \Exception
      * @return RedirectResponse
      */
-    public function save()
+    public function saveNew()
     {
         $entityManager = $this->getDoctrine()->getManager();
 
@@ -153,12 +217,70 @@ class PostController extends AbstractController
     }
 
     /**
+     * @Route("/posts/{id}/delete", name="delete_post", requirements={"id"="\d+"})
+     *
+     * @param string $id
+     * @return RedirectResponse|Response
+     */
+    public function delete($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Post::class);
+        $post = $repository->find($id);
+
+        try {
+            $this->denyAccessUnlessGranted('delete', $post);
+        } catch (\Exception $e) {
+            return new RedirectResponse($this->generateUrl('post_list'));
+        }
+
+        if (!empty($post)) {
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $entityManager->remove($post);
+            $entityManager->flush();
+        }
+
+        return new RedirectResponse($this->generateUrl('post_list'));
+    }
+
+    /**
+     * @param Post|null $post
      * @return \Symfony\Component\Form\FormInterface
      */
-    private function buildPostForm()
+    private function buildPostForm(?Post $post = null)
     {
         return $this->createForm(
-            PostType::class
+            PostType::class,
+            $post
         );
+    }
+
+    /**
+     * @return \Symfony\Component\Form\FormInterface
+     */
+    private function buildSearchForm()
+    {
+        return $this->createForm(
+            SearchType::class
+        );
+    }
+
+    /**
+     * @param Post[]
+     * @return Post[]
+     */
+    private function getPostsWithExcerpts(array $posts)
+    {
+        foreach ($posts as $post) {
+            $body = $post->getBody();
+
+            if (strlen($body) > 500) {
+                $body = substr($body, 0, 500) . '...';
+            }
+
+            $post->setBody($body);
+        }
+
+        return $posts;
     }
 }

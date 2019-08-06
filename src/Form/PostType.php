@@ -17,6 +17,8 @@ class PostType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $data = $builder->getData();
+
         $builder
             ->add(
                 'title',
@@ -26,7 +28,8 @@ class PostType extends AbstractType
                     'attr' => [
                         'class' => 'input',
                         'placeholder' => 'Title'
-                    ]
+                    ],
+                    'data' => !empty($data) ? $data->getTitle() : null
                 ]
             )
             ->add(
@@ -36,7 +39,8 @@ class PostType extends AbstractType
                     'label' => 'Content',
                     'attr' => [
                         'class' => 'textarea'
-                    ]
+                    ],
+                    'data' => !empty($data) ? $data->getBody() : null
                 ]
             );
     }

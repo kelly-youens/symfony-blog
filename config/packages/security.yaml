@@ -42,7 +42,7 @@ security:
         - { path: ^/posts/new, roles: ROLE_ADMIN }
         - { path: ^/posts, roles: ROLE_ADMIN }
         - { path: ^/posts/\d+/delete, roles: ROLE_ADMIN }
-
+        - { path: ^/posts/\d+/edit, roles: ROLE_ADMIN }
 
     access_decision_manager:
         strategy: affirmative
