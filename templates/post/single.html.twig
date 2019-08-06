@@ -17,7 +17,7 @@
             <p class="subtitle is-5">By {{ post.user.username }}</p>
 
             <div class="is-medium">
-                {{ post.body | raw }}
+                {{ post.body }}
             </div>
 
             <p class="right"><strong>Posted on {{ post.dateCreated | date("d/m/Y") }} at {{ post.dateCreated | date("H:i") }}</strong></p>
