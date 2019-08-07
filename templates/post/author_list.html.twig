@@ -3,6 +3,9 @@
 {% block body %}
 
     <div class="section container">
+        <div>
+            <a class="button is-primary" href="/posts/new">Add a new post</a>
+        </div>
         {% if posts %}
             {% for post in posts %}
 
@@ -11,7 +14,7 @@
                         {{ post.title }}
                     </div>
                     <div class="message-body">
-                        <div>{{ post.body }}</div>
+                        <div>{{ post.body | raw }}</div>
                         <div class="level">
                             <p>
                                 <a href="/posts/{{ post.id }}/edit" class="button is-warning">Edit</a>

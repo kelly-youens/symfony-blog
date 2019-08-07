@@ -4,8 +4,9 @@
         <meta charset="UTF-8">
         <title>{% block title %}Symfony Blog{% endblock %}</title>
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css" type="text/css" />
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.css" type="text/css" />
+        {% endblock %}
     </head>
     <body>
 
@@ -74,9 +75,9 @@
             </div>
         </footer>
 
-        <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+            <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+            <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
+        {% endblock %}
     </body>
 </html>

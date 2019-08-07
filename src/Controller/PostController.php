@@ -168,7 +168,7 @@ class PostController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
 
             $post->setTitle($data->getTitle());
-            $post->setBody($data->getBody());
+            $post->setBody($this->cleanPostBody($data->getBody()));
 
             $entityManager->persist($post);
             $entityManager->flush();
@@ -202,7 +202,7 @@ class PostController extends AbstractController
 
             $post = new Post();
             $post->setTitle($data['title']);
-            $post->setBody($data['body']);
+            $post->setBody($this->cleanPostBody($data['body']));
             $post->setDateCreated(new \DateTime());
             $post->setDateUpdated(new \DateTime());
             $post->setUser($user);
@@ -241,6 +241,15 @@ class PostController extends AbstractController
         }
 
         return new RedirectResponse($this->generateUrl('post_list'));
+    }
+
+    /**
+     * @param string $body
+     * @return string
+     */
+    private function cleanPostBody($body)
+    {
+        return nl2br(strip_tags($body));
     }
 
     /**
